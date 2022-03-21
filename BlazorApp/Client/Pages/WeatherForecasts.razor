@@ -1,0 +1,105 @@
+﻿@page "/weatherforecast"
+@using BlazorApp.Shared
+@inject HttpClient Http
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+                @*<th>IsEditing</th>*@
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                if (forecast.IsEditing)
+                {
+                    <tr>
+                        <td>@forecast.Id</td>
+                        <td>
+                            <input type="text" class="form-control" placeholder="Give the forecast Date" @bind="@forecast.Date" />
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" placeholder="Temperature" @bind="@forecast.TemperatureC" min="0" max="65535" />
+                        </td>
+                        <td></td>
+                        <td>
+                            <input type="text" class="form-control" placeholder="The port number server is running on" @bind="@forecast.Summary" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-link" @onclick="() => EnableEditing(false, forecast)">
+                                <i class="fas fa-window-close" style="color: black" />
+                            </button>
+                            <button type="button" class="btn btn-link" @onclick="() => UpdateInstance(forecast)">
+                                <i class="fas fa-check-square" style="color: black" />
+                            </button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@forecast.Id</td>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                        @*<td>@forecast.IsEditing.ToString()</td>*@
+
+                        @*Edit*@
+                        <td>
+                            <button type="button" class="btn btn-link" @onclick="() => EnableEditing(true, forecast)">
+                                <i class="fas fa-pen" style="color: black" />
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("api/WeatherForecast");
+    }
+
+
+    private void EnableEditing(bool flag, WeatherForecast weatherForecast)
+    {
+        weatherForecast.IsEditing = flag;
+    }
+
+    private void UpdateInstance(WeatherForecast weatherForecast)
+    {
+        EnableEditing(false, weatherForecast);
+
+
+
+        //call the repository to update the instance here.
+        //show toast after done.
+    }
+}
