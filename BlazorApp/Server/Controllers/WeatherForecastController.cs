@@ -14,6 +14,8 @@ namespace BlazorApp.Server.Controllers
             _context = context;
         }
 
+
+        // WeatherForecasts
         [HttpGet]
         public async Task<ActionResult<List<WeatherForecast>>> GetWeatherForecasts()
         {
@@ -21,41 +23,75 @@ namespace BlazorApp.Server.Controllers
             return Ok(weatherForecasts);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<List<WeatherForecast>>> PostWeatherForecasts(WeatherForecast weatherForecast)
+        [HttpPut] // PUT = Create
+        public async Task<ActionResult<List<WeatherForecast>>> PutWeatherForecasts(WeatherForecast[] weatherForecast)
         {
+            
+            foreach (var singleweatherForecast in weatherForecast)
+            {
+                _context.WeatherForecasts.Add(singleweatherForecast);
+            }
+           
+            await _context.SaveChangesAsync();
+
             var weatherForecasts = await _context.WeatherForecasts.ToListAsync();
-
-            weatherForecasts.Add(weatherForecast);
-
             return Ok(weatherForecasts);
         }
 
 
+
+        // SingleWeatherForecast
         [HttpGet("{id}")]
         public async Task<ActionResult<WeatherForecast>> GetSingleWeatherForecasts(int id)
         {
-            var weatherForecasts = await _context.WeatherForecasts
+            var singleweatherForecast = await _context.WeatherForecasts
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if (weatherForecasts == null)
+
+            if (singleweatherForecast == null)
             {
                 return NotFound("No WeatherForecast Id avaialbe");
             }
-            return Ok(weatherForecasts);
+
+            return Ok(singleweatherForecast);
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<WeatherForecast>> PutSingleWeatherForecasts(WeatherForecast request_weatherForecast)
+
+        [HttpPost("{id}")] // POST = Update
+        public async Task<ActionResult<WeatherForecast>>PostSingleWeatherForecasts(WeatherForecast request)
         {
-            var weatherForecasts = await _context.WeatherForecasts
-                .FirstOrDefaultAsync(x => x.Id == request_weatherForecast.id);
-            if (weatherForecasts == null)
+            var singleweatherForecast = await _context.WeatherForecasts
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+            if (singleweatherForecast == null)
+            {
+                return BadRequest("No WeatherForecast Id avaialbe"); // change?
+            }
+            singleweatherForecast.Date = request.Date;
+            singleweatherForecast.TemperatureC = request.TemperatureC;
+            singleweatherForecast.Summary = request.Summary;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(singleweatherForecast);
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteSingleWeatherForecasts(int id)
+        {
+            var singleweatherForecast = await _context.WeatherForecasts
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (singleweatherForecast == null)
             {
                 return NotFound("No WeatherForecast Id avaialbe");
             }
+
+            _context.WeatherForecasts.Remove(singleweatherForecast);
+            await _context.SaveChangesAsync();
+
+
+            var weatherForecasts = await _context.WeatherForecasts.ToListAsync();
             return Ok(weatherForecasts);
         }
-
 
 
 

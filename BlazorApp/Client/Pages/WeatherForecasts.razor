@@ -88,16 +88,19 @@ else
     }
 
 
-    private void EnableEditing(bool flag, WeatherForecast weatherForecast)
+    private async Task EnableEditing(bool flag, WeatherForecast weatherForecast)
     {
         weatherForecast.IsEditing = flag;
+        
+        // weatherForecast = await Http.GetFromJsonAsync<WeatherForecast>("api/WeatherForecast/"+weatherForecast.Id);
+
     }
 
-    private void UpdateInstance(WeatherForecast weatherForecast)
+    private async void UpdateInstance(WeatherForecast weatherForecast)
     {
         EnableEditing(false, weatherForecast);
 
-
+        await Http.PostAsJsonAsync<WeatherForecast>("api/WeatherForecast/"+weatherForecast.Id, weatherForecast);
 
         //call the repository to update the instance here.
         //show toast after done.
