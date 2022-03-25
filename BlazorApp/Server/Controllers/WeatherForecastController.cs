@@ -1,4 +1,3 @@
-using BlazorApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorApp.Server.Controllers
@@ -26,12 +25,12 @@ namespace BlazorApp.Server.Controllers
         [HttpPut] // PUT = Create
         public async Task<ActionResult<List<WeatherForecast>>> PutWeatherForecasts(WeatherForecast[] weatherForecast)
         {
-            
+
             foreach (var singleweatherForecast in weatherForecast)
             {
                 _context.WeatherForecasts.Add(singleweatherForecast);
             }
-           
+
             await _context.SaveChangesAsync();
 
             var weatherForecasts = await _context.WeatherForecasts.ToListAsync();
@@ -57,7 +56,7 @@ namespace BlazorApp.Server.Controllers
 
 
         [HttpPost("{id}")] // POST = Update
-        public async Task<ActionResult<WeatherForecast>>PostSingleWeatherForecasts(WeatherForecast request)
+        public async Task<ActionResult<WeatherForecast>> PostSingleWeatherForecasts(WeatherForecast request)
         {
             var singleweatherForecast = await _context.WeatherForecasts
                 .FirstOrDefaultAsync(x => x.Id == request.Id);
