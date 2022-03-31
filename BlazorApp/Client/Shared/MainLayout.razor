@@ -1,17 +1,38 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+<MudThemeProvider Theme="_currentTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
+        <MudSpacer />
+        @if(_darkMode)
+        {
+        <MudIconButton Icon="@Icons.Material.Outlined.Brightness4" Color="Color.Inherit" Edge="Edge.End" OnClick="@PaletteToggle" />
+        }
+        else
+        {
+             <MudIconButton Icon="@Icons.Material.Outlined.Brightness5" Color="Color.Inherit" Edge="Edge.End" OnClick="@PaletteToggle" />
+        }
+        </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h1" Class="mt-1">Application</MudText>
+        </MudDrawerHeader>
+
         <NavMenu />
-    </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+    </MudDrawer>
 
-        <article class="content px-4">
+    <MudMainContent>
+        <MudContainer>
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>

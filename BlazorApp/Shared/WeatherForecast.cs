@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace BlazorApp.Shared
@@ -6,7 +7,8 @@ namespace BlazorApp.Shared
     {
         public int Id { get; set; }
 
-        public DateTime Date { get; set; }
+        
+        public DateTime? Date { get; set; }
 
         public int TemperatureC { get; set; }
 

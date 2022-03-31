@@ -4,11 +4,6 @@
 
 @using System.Net.Http.Json
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
-
 
 <style>
     .selected {
@@ -26,37 +21,73 @@
 
 
 
-<PageTitle>Weather forecast</PageTitle>
+<PageTitle>Weather Forecast</PageTitle>
 
-<h1>Weather forecast</h1>
+<MudText Typo="Typo.h1">Weather Forecast</MudText>
+<h1>Weather Forecast</h1>
 
+<MudText>This component demonstrates fetching data from the server.</MudText>
 <p>This component demonstrates fetching data from the server.</p>
 
 @if (forecasts == null)
-{   
-    <p ><em>Loading...</em></p>
+{
+    <p><em>Loading...</em></p>
 }
 else
 {
-<MudTable @ref="forecastsTable" Items="@forecasts.Take(50)" Hover="true" Loading="_loading" LoadingProgressColor="Color.Info" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent" T="WeatherForecast">
-    <HeaderContent>
-        <MudTh>Id</MudTh>
-        <MudTh>Date</MudTh>
-        <MudTh>TemperatureC</MudTh>
-        <MudTh>TemperatureF</MudTh>
-        <MudTh>Summary</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Id">@context.Id</MudTd>
-        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-        <MudTd DataLabel="TemperatureC">@context.TemperatureC</MudTd>
-        <MudTd DataLabel="TemperatureF">@context.TemperatureF</MudTd>
-        <MudTd DataLabel="Summary">@context.Summary</MudTd>
-    </RowTemplate>
-</MudTable>
+
+    <MudTable @ref="forecastsTable" Items="@forecasts" T="WeatherForecast" Height="500px" Breakpoint="Breakpoint.Sm"
+        Virtualize="true" FixedHeader="true" Hover="@_hover" Dense="@_dense" ReadOnly="@_readonly" CanCancelEdit="@_canCancelEdit" Loading="_loading" LoadingProgressColor="Color.Info"
+        RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent"
+        CommitEditTooltip="Commit Edit"  RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+        RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="@_blockSwitch">
+        
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Date</MudTh>
+            <MudTh>TemperatureC</MudTh>
+            <MudTh>TemperatureF</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+
+        <RowTemplate >
+            @*@foreach (var c in context)
+            {
+
+            }*@
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Date">@context.Date</MudTd>
+            <MudTd DataLabel="TemperatureC">@context.TemperatureC</MudTd>
+            <MudTd DataLabel="TemperatureF">@context.TemperatureF</MudTd>
+            <MudTd DataLabel="Summary">@context.Summary</MudTd>
+        </RowTemplate>
+
+        <RowEditingTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Date" >
+                <MudDatePicker @bind-Date="@context.Date" Editable="true" ShowWeekNumbers="true" Required />
+            </MudTd>
+            <MudTd DataLabel="TempertureC">
+                <MudTextField @bind-Value="@context.TemperatureC" Required />
+            </MudTd>
+            <MudTd DataLabel="TemperatureF">@context.TemperatureF</MudTd>
+            <MudTd DataLabel="Summary">
+                <MudTextField @bind-Value="@context.Summary" Required />
+            </MudTd>
+        </RowEditingTemplate>
+
+    </MudTable>
+
+<MudSwitch @bind-Checked="@_hover" Color="Color.Primary">Hover</MudSwitch>
+<MudSwitch @bind-Checked="@_dense" Color="Color.Secondary">Dense</MudSwitch>
+<MudSwitch @bind-Checked="@_readonly" Color="Color.Tertiary">Read Only</MudSwitch>
+<MudSwitch @bind-Checked="@_canCancelEdit" Color="Color.Info">Can Cancel Edit</MudSwitch>
+<MudSwitch @bind-Checked="@_blockSwitch" Color="Color.Success">Block Edit Row Switching</MudSwitch>
+<MudSwitch @bind-Checked="@_loading">Show Loading</MudSwitch>
+
 }
 
-<MudSwitch @bind-Checked="_loading">Show Loading</MudSwitch>
+
 
 @code {
 
@@ -65,7 +96,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        forecasts = await Http.GetFromJsonAsync<List<WeatherForecast>>("api/WeatherForecast");
+        forecasts = await Http.GetFromJsonAsync<IEnumerable<WeatherForecast>>("api/WeatherForecast");
         _loading = false;
     }
 
@@ -74,8 +105,19 @@ else
     private MudTable<WeatherForecast> forecastsTable;
     private int selectedRowNumber = -1;
 
+    private WeatherForecast elementBeforeEdit;
+
+    private bool _hover = true;
+    private bool _dense = false;
+    private bool _readonly = true;
+    private bool _canCancelEdit = true;
+    private bool _blockSwitch = false;
+
+
+
     // function
 
+    // highligtht on select
     private void RowClickEvent(TableRowClickEventArgs<WeatherForecast> tableRowClickEventArgs)
     {
         Console.Write("Row has been clicked");
@@ -90,15 +132,39 @@ else
 
             return string.Empty;
         }
-        else if (forecastsTable.SelectedItem != null && forecastsTable.SelectedItem.Equals(weatherForecast))
-        {
-            selectedRowNumber = rowNumber;
-            return "selected";
-        }
+        //else if (forecastsTable.SelectedItem != null && forecastsTable.SelectedItem.Equals(weatherForecast))
+        //{
+
+        //    selectedRowNumber = rowNumber;
+        //    return "selected";
+        //}
         else return string.Empty;
     }
-    
-    
-    
+
+    // edit item
+    private void BackupItem(object element)
+    {
+        elementBeforeEdit = new()
+        {
+            Date = ((WeatherForecast)element).Date,
+            TemperatureC = ((WeatherForecast)element).TemperatureC,
+            Summary = ((WeatherForecast)element).Summary
+        };
+        // AddEditionEvent($"RowEditPreview event: made a backup of Element {((Element)element).Name}");
+    }
+
+    private void ItemHasBeenCommitted(object element)
+    {
+        // AddEditionEvent($"RowEditCommit event: Changes to Element {((Element)element).Name} committed");
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((WeatherForecast)element).Date = elementBeforeEdit.Date;
+        ((WeatherForecast)element).TemperatureC=elementBeforeEdit.TemperatureC;
+        ((WeatherForecast)element).Summary = elementBeforeEdit.Summary;
+        
+        // AddEditionEvent($"RowEditCancel event: Editing of Element {((Element)element).Name} cancelled");
+    }
 
 }

@@ -16,14 +16,14 @@ namespace BlazorApp.Server.Controllers
 
         // WeatherForecasts
         [HttpGet]
-        public async Task<ActionResult<List<WeatherForecast>>> GetWeatherForecasts()
+        public async Task<ActionResult<IEnumerable<WeatherForecast>>> GetWeatherForecasts()
         {
             var weatherForecasts = await _context.WeatherForecasts.ToListAsync();
             return Ok(weatherForecasts);
         }
 
         [HttpPut] // PUT = Create
-        public async Task<ActionResult<List<WeatherForecast>>> PutWeatherForecasts(WeatherForecast[] weatherForecast)
+        public async Task<ActionResult<IEnumerable<WeatherForecast>>> PutWeatherForecasts(WeatherForecast[] weatherForecast)
         {
 
             foreach (var singleweatherForecast in weatherForecast)
@@ -75,7 +75,7 @@ namespace BlazorApp.Server.Controllers
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteSingleWeatherForecasts(int id)
+        public async Task<ActionResult<WeatherForecast>> DeleteSingleWeatherForecasts(int id)
         {
             var singleweatherForecast = await _context.WeatherForecasts
                 .FirstOrDefaultAsync(x => x.Id == id);
